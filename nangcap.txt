@@ -1,0 +1,38 @@
+KẾ HOẠCH NÂNG CẤP VÀ TỐI ƯU HỆ THỐNG VISITOR-SERVER
+
+Tổng quan:
+- Hệ thống hiện tại có ~12GB RAM nhưng chỉ dùng ~1.5GB. Cần tận dụng RAM thừa làm cache để tăng tốc.
+- Hầu hết các thành phần đang chạy cấu hình mặc định (chưa tối ưu).
+
+Các hạng mục cần thực hiện:
+
+1. Tối ưu Camera Stream (Giảm tải CPU/RAM đáng kể)
+- File cấu hình: /var/www/visitor-server/.env
+- Tình trạng: CAMERA_RTSP_URL đang dùng luồng chính (Main stream - Channels/101).
+- Cần thực hiện: Đổi link RTSP thành luồng phụ (Sub stream) -> "Channels/102". Việc này giúp giảm tải WebRTC-Streamer, web load camera mượt hơn rất nhiều.
+
+2. Bật Cache cho Laravel Framework (Giúp web phản hồi tức thì)
+- Tình trạng: Các file config, route, view chưa được cache.
+- Cần thực hiện chạy các lệnh artisan tại thư mục dự án (/var/www/visitor-server/):
+  + php artisan config:cache
+  + php artisan route:cache
+  + php artisan view:cache
+
+3. Tối ưu Cache và Session (Tăng tốc độ truy xuất, giảm I/O ổ cứng)
+- File cấu hình: /var/www/visitor-server/.env
+- Tình trạng: Đang lưu file trực tiếp trên ổ cứng (CACHE_STORE=file, SESSION_DRIVER=file).
+- Cần thực hiện:
+  + Cài đặt thêm service Redis trên server.
+  + Đổi .env thành CACHE_STORE=redis và SESSION_DRIVER=redis.
+
+4. Tối ưu PHP-FPM (Xử lý nhiều người dùng cùng lúc)
+- File cấu hình: /etc/php/*/fpm/pool.d/www.conf
+- Tình trạng: pm.max_children = 5 (rất thấp so với 12GB RAM).
+- Cần thực hiện: Nâng giới hạn `pm.max_children` lên 50 hoặc 100 để web có thể phục vụ nhiều người dùng đồng thời mà không bị quá tải.
+- Sau khi chỉnh: Khởi động lại PHP-FPM (VD: sudo systemctl restart php8.3-fpm)
+
+5. Tối ưu bộ nhớ đệm MySQL (Tăng tốc độ truy vấn CSDL)
+- File cấu hình: /etc/mysql/mysql.conf.d/mysqld.cnf (hoặc my.cnf)
+- Tình trạng: Buffer pool đang dùng mặc định (thường khoảng 128MB).
+- Cần thực hiện: Thêm/Sửa thông số `innodb_buffer_pool_size = 1G` (hoặc 2G) để cache data lên RAM.
+- Sau khi chỉnh: Khởi động lại MySQL (sudo systemctl restart mysql)

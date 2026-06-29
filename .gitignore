@@ -1,0 +1,65 @@
+# ==========================================
+# CẤU HÌNH BẢO MẬT & MẬT KHẨU (SECURITY & SECRETS)
+# ==========================================
+# Bỏ qua tất cả các tệp cấu hình môi trường chứa mật khẩu, key, token thực tế
+.env
+.env.*
+!.env.example
+
+# Bỏ qua các tệp khóa bảo mật, chứng chỉ SSL/TLS, OAuth keys
+*.key
+*.pem
+*.pub
+*.cert
+*.crt
+/storage/*.key
+oauth-private.key
+oauth-public.key
+
+# Bỏ qua cơ sở dữ liệu cục bộ (Tránh lộ dữ liệu khách hàng)
+*.sqlite
+/database/*.sqlite
+
+# Bỏ qua tệp chứa thông tin đăng nhập cài đặt gói (Credential Composer/NPM)
+/auth.json
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ==========================================
+# LOGS, CACHE & THƯ VIỆN (LOGS, CACHE & DEPENDENCIES)
+# ==========================================
+*.log
+/storage/logs/*.log
+/storage/pail
+.phpunit.result.cache
+/.phpunit.cache
+/node_modules
+/vendor
+
+# ==========================================
+# DỮ LIỆU UPLOAD & FILE ĐÃ BUILD (UPLOADS & BUILDS)
+# ==========================================
+# Bỏ qua thư mục liên kết ảnh upload để tránh lộ ảnh CCCD/Khuôn mặt khách hàng
+/public/storage
+/public/build
+/public/hot
+
+# ==========================================
+# CẤU HÌNH IDE & HỆ ĐIỀU HÀNH (IDE & OS)
+# ==========================================
+.DS_Store
+Thumbs.db
+/.fleet
+/.idea
+/.nova
+/.vscode
+/.zed
+.phpactor.json
+Homestead.json
+Homestead.yaml
+
+# ==========================================
+# NHỊ PHÂN & LOGS CỦA WEBRTC-STREAMER (WEBRTC-STREAMER)
+# ==========================================
+/webrtc-streamer-bin/
